@@ -2,10 +2,7 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+<p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
@@ -22,17 +19,34 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Descripción
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Proyecto de API REST para backend de prueba construido con [Nest](https://github.com/nestjs/nest) (framework TypeScript starter repository), ofrece lo siguiente:
 
-## Installation
+* APIs rest de gestion de usuarios
+* APIs rest de gestion de usuarios online
+* WebSockets para los eventos de usuarios online/offline
+* WebSockets para los eventos de envíos de mensajes
+
+## Configuración firebase
+
+Se requiere agregar la configuración para la conexión con el firestore de firebase, para eso:
+
+1. Cree o acceda a su cuenta de firebase
+2. Genere un proyecto nuevo, puede llamarlo chatx
+3. Genere la clave en un archivo json desde el proyecto
+
+![1718128323760](image/README/1718128323760.png)
+
+1. Renombre el achivo como firebase-key.json y lo incluye en la ruta /config/firebase-key.json
+
+## Instalación
 
 ```bash
 $ npm install
 ```
 
-## Running the app
+## Ejecutar la APP
 
 ```bash
 # development
@@ -45,29 +59,36 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+Una vez ejecutado la APP se puede acceder a la documentación swagger de las apis en la siguiente URL
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+http://localhost:9000/api
 ```
 
-## Support
+## Docker
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+El proyecto contiene lo necesario para su despliegue en un contenedor docker, para eso:
+
+1. Desde la raíz del proyecto ejecute el siguiente comando:
+
+   ```powershell
+   docker build -t chatx/backend-nestjs-chatx .
+   ```
+2. Luego corra la imagen de la siguiente manera
+
+```shell
+docker run -p9000:9000 chatx/backend-nestjs-chatx
+```
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Autor - Juan Carlos Perez Zapata
+- LinkedIn - [juan-carlos-perez](www.linkedin.com/in/juan-carlos-perez)
+- Email - jcarlosp1986@gmail.com
 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest

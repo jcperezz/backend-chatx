@@ -4,7 +4,9 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { RoomWithMessages } from './entities/room-with-messages.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('rooms')
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}

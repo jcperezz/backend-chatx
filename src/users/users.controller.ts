@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Validation
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 @UsePipes(new ValidationPipe()) // activa las validaciones de las peticiones
 export class UsersController {
