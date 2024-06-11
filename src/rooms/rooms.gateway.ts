@@ -1,18 +1,15 @@
-import { WEBSOCKET_NEW_MESSAGE, WEBSOCKET_NEW_ONLINE_USER, WEBSOCKET_OFFLINE_USER, WEBSOCKET_ONLINE_USER, WEBSOCKET_SEND_MESSAGE } from 'src/config/app/constants';
+import { WEBSOCKET_API_PORT, WEBSOCKET_NEW_MESSAGE, WEBSOCKET_NEW_ONLINE_USER, WEBSOCKET_OFFLINE_USER, WEBSOCKET_ONLINE_USER, WEBSOCKET_SEND_MESSAGE } from 'src/config/app/constants';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
 import { RoomsService } from './rooms.service';
 import { SendMessageDto } from './dto/send-message.dto';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { SendOnlineUser } from './dto/send-online-user.dto';
 import { OnlineUsersService } from 'src/online-users/online-users.service';
-import { Message } from './entities/message.entity';
 import { NewMessageDto } from './dto/new-message.dto';
 import { randomUUID } from 'crypto';
 
-@WebSocketGateway(3001, { namespace: '/room', cors: { origin: '*' } })
+@WebSocketGateway(WEBSOCKET_API_PORT, { namespace: '/room', cors: { origin: '*' } })
 export class RoomsGateway {
 
   @WebSocketServer() server: Server;

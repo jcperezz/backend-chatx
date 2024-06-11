@@ -65,6 +65,13 @@ Una vez ejecutado la APP se puede acceder a la documentación swagger de las api
 http://localhost:9000/api
 ```
 
+## Puertos
+
+La aplicacion expone los servicios en los siguientes puertos (dependerá de la configuración final de la aplicación)
+
+1. API REST: 9000
+2. Websockets: 9001
+
 ## Docker
 
 El proyecto contiene lo necesario para su despliegue en un contenedor docker, para eso:
@@ -77,7 +84,7 @@ El proyecto contiene lo necesario para su despliegue en un contenedor docker, pa
 2. Luego corra la imagen de la siguiente manera
 
 ```shell
-docker run -p9000:9000 chatx/backend-nestjs-chatx
+docker run -p9000:9000 -p9001:9001 chatx/backend-nestjs-chatx
 ```
 
 ## Stay in touch

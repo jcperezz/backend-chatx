@@ -7,3 +7,5 @@ export const WEBSOCKET_NEW_ONLINE_USER: string = 'newOnlineUser';
 export const WEBSOCKET_OFFLINE_USER: string = 'offlineUser';
 export const WEBSOCKET_SEND_MESSAGE: string = 'sendMessage';
 export const WEBSOCKET_NEW_MESSAGE: string = 'newMessage';
+export const REST_API_PORT: number = 9000;
+export const WEBSOCKET_API_PORT: number = 9001;
