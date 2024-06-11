@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -9,18 +9,22 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) : Promise<User> {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: string) : Promise<User> {
+    const user = await this.usersService.findOne(id);
+    if(!user){
+      throw new HttpException(`usuario con id ${id} no encontrado`, HttpStatus.NOT_FOUND)
+    }
+    return user;
   }
 
 }

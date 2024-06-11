@@ -8,11 +8,17 @@ export class CreateMessageDto {
     @IsString({message: 'el campo content no es un string válido'})
     readonly content: string;
 
-    @IsNotEmpty({message: 'el campo senderId es obligatorio'})
-    @MinLength(4, {message: 'el campo senderId debe ser mínimo de 4 caracteres'})
-    @MaxLength(20, {message: 'el campo senderId debe ser maximo de 8 caracteres'})
-    @IsAlphanumeric("es-ES", {message: 'el campo senderId contiene caracteres inválidos, solo se permite letras y números'})
-    readonly senderId: string;
+    @IsNotEmpty({message: 'el campo fromId es obligatorio'})
+    @MinLength(4, {message: 'el campo fromId debe ser mínimo de 4 caracteres'})
+    @MaxLength(20, {message: 'el campo fromId debe ser maximo de 8 caracteres'})
+    @IsAlphanumeric("es-ES", {message: 'el campo fromId contiene caracteres inválidos, solo se permite letras y números'})
+    readonly fromId: string;
+
+    @IsNotEmpty({message: 'el campo toId es obligatorio'})
+    @MinLength(4, {message: 'el campo toId debe ser mínimo de 4 caracteres'})
+    @MaxLength(20, {message: 'el campo toId debe ser maximo de 8 caracteres'})
+    @IsAlphanumeric("es-ES", {message: 'el campo toId contiene caracteres inválidos, solo se permite letras y números'})
+    readonly toId: string;
 
     @IsNotEmpty({message: 'el campo nick es obligatorio'})
     @MinLength(4, {message: 'el campo nick debe ser mínimo de 4 caracteres'})

@@ -1,52 +1,66 @@
+import { WEBSOCKET_NEW_MESSAGE, WEBSOCKET_NEW_ONLINE_USER, WEBSOCKET_OFFLINE_USER, WEBSOCKET_ONLINE_USER, WEBSOCKET_SEND_MESSAGE } from 'src/config/app/constants';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { WEBSOCKET_NEW_MESSAGE, WEBSOCKET_OFFLINE_USER, WEBSOCKET_ONLINE_USER, WEBSOCKET_SEND_MESSAGE } from 'src/config/app/constants';
 import { RoomsService } from './rooms.service';
-import { RoomWithMessages } from './entities/room-with-messages.entity';
-import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/entities/user.entity';
 import { SendMessageDto } from './dto/send-message.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { SendOnlineUser } from './dto/send-online-user.dto';
+import { OnlineUsersService } from 'src/online-users/online-users.service';
+import { Message } from './entities/message.entity';
+import { NewMessageDto } from './dto/new-message.dto';
+import { randomUUID } from 'crypto';
 
 @WebSocketGateway(3001, { namespace: '/room', cors: { origin: '*' } })
 export class RoomsGateway {
 
   @WebSocketServer() server: Server;
+  private clients: Map<string, Socket> = new Map();
 
-  constructor(private readonly roomsService: RoomsService, private readonly usersService: UsersService) { }
+  constructor(private readonly roomsService: RoomsService, private readonly onlineUsersService: OnlineUsersService) { }
 
-  @UsePipes(new ValidationPipe())
   @SubscribeMessage(WEBSOCKET_SEND_MESSAGE)
   async handleMessage(client: any, payload: SendMessageDto): Promise<void> {
     console.log('mensaje', payload);
-    this.roomsService.addMessage(payload.roomId, payload as CreateMessageDto);
-    this.server.emit(WEBSOCKET_NEW_MESSAGE, ({ owner: payload.nick, content: payload.content }));
+    this.sendPrivateMessage(payload.toConnectionId, ({...payload, date: Date.now(), id: randomUUID()}));
+    this.sendPrivateMessage(client.id, ({...payload, date: Date.now(), id: randomUUID()}));
+  }
+
+  @SubscribeMessage(WEBSOCKET_ONLINE_USER)
+  async handleOnlineUser(client: any, payload: SendOnlineUser): Promise<void> {
+    if (!payload.id || this.clients.has(payload.id)) {
+      return;
+    }
+
+    console.log(WEBSOCKET_ONLINE_USER, payload);
+    await this.onlineUsersService.create(({ userId: payload.id, nick: payload.nick, connectionId: client.id }));
+
+    this.server.emit(WEBSOCKET_NEW_ONLINE_USER, ({ userId: payload.id, nick: payload.nick, connectionId: client.id }));
+    (await this.onlineUsersService.findAll()).forEach(onlineUser => client.emit(WEBSOCKET_NEW_ONLINE_USER, onlineUser));
   }
 
   async handleConnection(client: Socket) {
-
-    const nick = client.handshake.query.nick;
-    const id = client.handshake.query.id as string;
-    const user = await this.usersService.findOne(id);
-
-    console.log(`Client connected: ${client.id} ${nick} ${id}`);
-
-    if (user) {
-      this.server.emit(WEBSOCKET_ONLINE_USER, user);
-    }
-
+    console.log(`Client connected: ${client.id}`);
+    // Almacenar el socket en el mapa de clientes
+    this.clients.set(client.id, client);
   }
 
-  handleDisconnect(client: Socket) {
-
-    const nick = client.handshake.query.nick;
-    const id = client.handshake.query.id as string;
-
-    this.server.emit(WEBSOCKET_OFFLINE_USER, ({ id: id, nick: nick }));
-
+  async handleDisconnect(client: Socket) {
+    this.server.emit(WEBSOCKET_OFFLINE_USER, client.id);
     console.log(`Client disconnected: ${client.id}`);
+    // Eliminar el socket del mapa de clientes
+    this.clients.delete(client.id);
+    await this.onlineUsersService.removeByConnectionId(client.id);
+  }
+
+  private sendPrivateMessage(clientId: string, payload: NewMessageDto) {
+    const client = this.clients.get(clientId);
+    if (client) {
+      client.emit(WEBSOCKET_NEW_MESSAGE, payload);
+    } else {
+      console.error(`Client with ID ${clientId} not found`);
+    }
   }
 
 }

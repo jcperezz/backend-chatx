@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 
 import * as admin from 'firebase-admin';
-import { FIREBASE_ADMIN, ROOMS_FIREBASE_COLLECTION } from 'src/config/app/constants';
+import { FIREBASE_ADMIN, ROOMS_FIREBASE_COLLECTION, USERS_FIREBASE_COLLECTION } from 'src/config/app/constants';
 import { Room } from './entities/room.entity';
 import { RoomWithMessages } from './entities/room-with-messages.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -17,7 +17,17 @@ export class RoomsService {
     const documentRef = await this.firebaseAdmin.firestore().collection(ROOMS_FIREBASE_COLLECTION)
       .add(({ ...createRoomDto }));
 
-    return this.toRoom(documentRef);
+    const newRoom = await this.toRoom(documentRef);
+    createRoomDto.participantsIds.forEach( userId => this.addRoomsToUser(userId, newRoom.id));
+    return newRoom;
+  }
+
+  private async addRoomsToUser(userId: string, roomId: string){
+    const docRef = this.firebaseAdmin.firestore().doc(`${USERS_FIREBASE_COLLECTION}/${userId}`);
+
+    await docRef.update({
+      roomsId: admin.firestore.FieldValue.arrayUnion(roomId),
+    });
   }
 
   async addParticipantToRoom(roomId: string, participantId: string): Promise<void> {
@@ -34,7 +44,7 @@ export class RoomsService {
     const messageEntity : Message = ({
       content: message.content,
       date: Date.now(),
-      senderId: message.senderId,
+      senderId: message.fromId,
       roomId: roomId
     });
 
@@ -48,7 +58,6 @@ export class RoomsService {
     return resultSet.docs.map((doc) => ({
       id: doc.id,
       name: doc.data().name,
-      adminId: doc.data().adminId,
       participantsIds: doc.data().participantsIds
     }));
   }
@@ -57,13 +66,13 @@ export class RoomsService {
     const documentRef = this.firebaseAdmin.firestore().collection(ROOMS_FIREBASE_COLLECTION).doc(id);
     return this.toRoom(documentRef);
   }
+  
 
   private async toRoom(documentRef: admin.firestore.DocumentData): Promise<RoomWithMessages> {
     const documentSnapshot = await documentRef.get();
     return documentSnapshot.exists ? ({
       id: documentSnapshot.id,
       name: documentSnapshot.data().name,
-      adminId: documentSnapshot.data().adminId,
       participantsIds: documentSnapshot.data().participantsIds,
       messages: documentSnapshot.data().messages
     }) : null;
